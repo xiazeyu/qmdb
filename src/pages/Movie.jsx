@@ -1,26 +1,29 @@
 import React from 'react';
 
-import { Descriptions, Result, Button, Skeleton, Grid } from '@arco-design/web-react';
+import {
+  Descriptions, Result, Button, Skeleton, Grid, Image, List, Table,
+} from '@arco-design/web-react';
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useMovie } from '../api/movies';
 
-const {Row, Col} = Grid;
+const { Row, Col } = Grid;
 
 function Movie() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const { data, isLoading, isError } = useMovie(id);
 
-  if (isLoading) return <div><Skeleton animation text={{rows: 10}} /></div>;
+  if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
   if (isError) {
     return (
       <div>
         <Result
-          status='error'
+          status="error"
           title={isError.message}
-          extra={<Button onClick={() => { location.reload() }} type='primary'>Retry</Button>}
-        ></Result>
+          extra={<Button onClick={() => { location.reload(); }} type="primary">Retry</Button>}
+        />
       </div>
     );
   }
@@ -43,14 +46,18 @@ function Movie() {
       value: data.country,
     },
     {
-      label: 'Address',
-      value: 'Yingdu Building, Zhichun Road, Beijing',
+      label: 'Box Office',
+      value: `$${data.boxoffice}`,
+    },
+    {
+      label: 'Plot',
+      value: data.plot,
     },
   ];
-  
+
   const columns = [
     {
-      title: 'Category',
+      title: 'Role',
       dataIndex: 'category',
     },
     {
@@ -63,21 +70,39 @@ function Movie() {
     },
   ];
 
-  const ratingData = data.ratings.map(item => {
-    const joinedRatings = `${item.source} ${item.value}`;
+  const ratingData = data.ratings.map((item) => {
+    const joinedRatings = `${item.source}: ${item.value}`;
     return { ...item, joinedRatings };
-  })
+  });
 
-  const tblData = data.principals.map(item => {
+  const principalsData = data.principals.map((item) => {
     const joinedCharacters = item.characters.join(', ');
-    return { ...item, characters: joinedCharacters };
+    return { ...item, joinedCharacters };
   });
 
   return (
     <div>
-      <Col span={16}>
-      <Descriptions border title={data.title} data={desdata} />
+      <Row gutter={[24, 24]}>
+        <Col span={16}>
+          <Descriptions border title={data.title} data={desdata} column={1} />
         </Col>
+        <Col span={8}>
+          <Image src={data.poster} alt="Poster" width={250} />
+        </Col>
+        <Col span={8}>
+          <List header="Ratings" dataSource={ratingData} render={(item, index) => <List.Item key={index}>{item.joinedRatings}</List.Item>} />
+        </Col>
+        <Col span={16}>
+          Click on principals to see their details.
+          <Table
+            columns={columns}
+            data={principalsData}
+            onRow={(record, index) => ({
+              onClick: () => navigate(`/people/${record.id}`),
+            })}
+          />
+        </Col>
+      </Row>
     </div>
   );
 }
