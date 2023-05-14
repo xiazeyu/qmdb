@@ -1,5 +1,5 @@
 import React, {
-  createContext, useState, useEffect, useCallback,
+  createContext, useState, useEffect, useCallback, useMemo,
 } from 'react';
 import { postRefresh, postLogout } from '../api/auth';
 
@@ -16,21 +16,6 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     const currentDatetime = new Date().getTime();
     return currentDatetime < refreshExpiry;
   }, [refreshToken, refreshExpiry]);
-
-  const refreshState = () => {
-    if (!accessToken) {
-      setAccessToken(null);
-      setAccessExpiry(null);
-      return { valid: false, message: 'Access token not found.' };
-    }
-    const currentDatetime = new Date().getTime();
-    if (currentDatetime > accessExpiry) {
-      setAccessToken(null);
-      setAccessExpiry(null);
-      return { valid: false, message: 'Access token expired.' };
-    }
-    return { valid: true, message: 'Access token valid.' };
-  };
 
   useEffect(() => {
     const storedAccessToken = localStorage.getItem('accessToken');
@@ -80,7 +65,7 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     return { success: true, message: 'Access token refreshed.' };
   }, [canRefresh, refreshToken, updateAccessToken, updateRefreshToken]);
 
-  const doLogout = async () => {
+  const doLogout = useCallback(async () => {
     const { data, isError } = await postLogout(refreshToken);
     setAccessToken(null);
     setRefreshToken(null);
@@ -94,22 +79,31 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
       return { success: false, message: data };
     }
     return { success: true, message: 'Logged out.' };
-  };
+  }, [refreshToken]);
+
+  const values = useMemo(() => ({
+    accessToken,
+    refreshToken,
+    accessExpiry,
+    refreshExpiry,
+    updateAccessToken,
+    updateRefreshToken,
+    doRefresh,
+    doLogout,
+    canRefresh,
+  }), [accessToken,
+    refreshToken,
+    accessExpiry,
+    refreshExpiry,
+    updateAccessToken,
+    updateRefreshToken,
+    doRefresh,
+    doLogout,
+    canRefresh,
+  ]);
 
   return (
-    <AuthContext.Provider value={{ // eslint-disable-line react/jsx-no-constructed-context-values
-      accessToken,
-      refreshToken,
-      accessExpiry,
-      refreshExpiry,
-      updateAccessToken,
-      updateRefreshToken,
-      refreshState,
-      doRefresh,
-      doLogout,
-      canRefresh,
-    }}
-    >
+    <AuthContext.Provider value={values}>
       {children}
     </AuthContext.Provider>
   );
