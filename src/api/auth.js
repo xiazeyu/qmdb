@@ -1,5 +1,12 @@
 import ENDPOINT from './endpoint';
 
+class ErrorNeedsRelogin extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'ErrorNeedsRelogin';
+  }
+}
+
 export async function postRegister(email, password) {
   const url = `${ENDPOINT}/user/register`;
   return fetch(url, {
@@ -84,16 +91,27 @@ export async function postRefresh(refreshToken) {
         };
       } if (res.status === 429) {
         throw new Error(`${await res.text()} (Code: ${res.status})`);
-      } else if (res.status === 400 || res.status === 401) {
+      } else if (res.status === 400) {
         throw new Error(`${(await res.json()).message} (Code: ${res.status})`);
+      } else if (res.status === 401) {
+        throw new ErrorNeedsRelogin(`${(await res.json()).message} (Code: ${res.status})`);
       } else {
         throw new Error(`Unexpected error. (Code: ${res.status})`);
       }
     },
-  ).catch((error) => ({
-    data: error.message,
-    isError: true,
-  }));
+  ).catch((error) => {
+    if (error instanceof ErrorNeedsRelogin) {
+      return {
+        data: error.message,
+        isError: true,
+        needsRelogin: true,
+      };
+    }
+    return {
+      data: error.message,
+      isError: true,
+    };
+  });
 }
 
 export async function postLogout(refreshToken) {

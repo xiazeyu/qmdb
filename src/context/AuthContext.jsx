@@ -54,17 +54,6 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     localStorage.setItem('refreshExpiry', expiryDatetime);
   }, []);
 
-  const doRefresh = useCallback(async () => {
-    if (!canRefresh()) return { success: false, message: 'Refresh token expired.' };
-    const { data, isError } = await postRefresh(refreshToken);
-    if (isError) {
-      return { success: false, message: data };
-    }
-    updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
-    updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
-    return { success: true, message: 'Access token refreshed.' };
-  }, [canRefresh, refreshToken, updateAccessToken, updateRefreshToken]);
-
   const doLogout = useCallback(async () => {
     const { data, isError } = await postLogout(refreshToken);
     setAccessToken(null);
@@ -80,6 +69,21 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     }
     return { success: true, message: 'Logged out.' };
   }, [refreshToken]);
+
+  const doRefresh = useCallback(async () => {
+    if (!canRefresh()) return { success: false, message: 'Refresh token expired.' };
+    const { data, isError, needsRelogin } = await postRefresh(refreshToken);
+    if (needsRelogin) {
+      await doLogout();
+      return { success: false, message: 'Please login again.' };
+    }
+    if (isError) {
+      return { success: false, message: data };
+    }
+    updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
+    updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
+    return { success: true, message: 'Access token refreshed.' };
+  }, [canRefresh, refreshToken, updateAccessToken, updateRefreshToken, doLogout]);
 
   const values = useMemo(() => ({
     accessToken,
