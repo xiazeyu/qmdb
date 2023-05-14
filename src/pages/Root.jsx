@@ -73,7 +73,7 @@ function Root() {
     setSelectedKey(menuItem ? [menuItem.key] : ['home']);
   }, [location, id]);
 
-  const refreshInterval = 30 * 60 * 1000; // 30 minutes
+  const refreshInterval = 5 * 60 * 1000; // 5 minutes
   const intervalId = setInterval(async () => {
     if (canRefresh()) {
       const { success, message } = await doRefresh();
@@ -193,7 +193,7 @@ function Root() {
                 )}
               </div>
               <div>
-                {DEMO && accessToken ? (
+                {DEMO && (accessToken ? (
                   <small>
                     AccessToken:
                     {accessToken}
@@ -202,8 +202,8 @@ function Root() {
                     {new Date(accessExpiry).toString()}
                     {' '}
                   </small>
-                ) : <small>No accessToken.</small>}
-                {DEMO && refreshToken ? (
+                ) : <small>No accessToken.</small>)}
+                {DEMO && (refreshToken ? (
                   <small>
                     refreshToken:
                     {refreshToken}
@@ -225,7 +225,7 @@ function Root() {
                       Refresh
                     </Button>
                   </small>
-                ) : <small>No refreshToken.</small>}
+                ) : <small>No refreshToken.</small>)}
               </div>
             </Footer>
           </Col>
