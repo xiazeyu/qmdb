@@ -1,28 +1,30 @@
-import React, { createContext, useState } from 'react';
+import React, {
+  createContext, useState,
+} from 'react';
 import { postRefresh, postLogout } from '../api/auth';
 
 const AuthContext = createContext();
 
-function AuthProvider({ children }) {
+function AuthProvider({ children }) { // eslint-disable-line react/prop-types
   const [tokenValid, setTokenValid] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
   const [accessExpiry, setAccessExpiry] = useState(null);
   const [refreshExpiry, setRefreshExpiry] = useState(null);
 
-  const updateAccessToken = (token, expires_in) => {
+  const updateAccessToken = (token, expiresIn) => {
     setAccessToken(token);
     const currentDatetime = new Date().getTime();
-    const expiryDatetime = currentDatetime + expires_in * 1000;
+    const expiryDatetime = currentDatetime + expiresIn * 1000;
     setAccessExpiry(expiryDatetime);
     setTokenValid(true);
     console.log('Access token updated.', token, new Date(expiryDatetime).toString(), tokenValid);
   };
 
-  const updateRefreshToken = (token, expires_in) => {
+  const updateRefreshToken = (token, expiresIn) => {
     setRefreshToken(token);
     const currentDatetime = new Date().getTime();
-    const expiryDatetime = currentDatetime + expires_in * 1000;
+    const expiryDatetime = currentDatetime + expiresIn * 1000;
     setRefreshExpiry(expiryDatetime);
     console.log('Refresh token updated.', token, new Date(expiryDatetime).toString(), tokenValid);
   };
@@ -73,7 +75,7 @@ function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{
+    <AuthContext.Provider value={{ // eslint-disable-line react/jsx-no-constructed-context-values
       accessToken,
       refreshToken,
       accessExpiry,

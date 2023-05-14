@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import {
-  Form, Input, Button, Checkbox, Grid, Alert, Space, Message,
+  Form, Input, Button, Checkbox, Alert, Space, Message,
 } from '@arco-design/web-react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -8,11 +8,9 @@ import { AuthContext } from '../context/AuthContext';
 import { DEMO, DEBUG } from '../context/DemoContext';
 import { postLogin } from '../api/auth';
 
-const { Row, Col } = Grid;
-
 function Login() {
   const {
-    accessToken, updateAccessToken, refreshToken, updateRefreshToken, tokenValid,
+    updateAccessToken, updateRefreshToken, tokenValid,
   } = useContext(AuthContext);
   const [alert, setAlert] = useState('');
   const [alertType, setAlertType] = useState('info');
@@ -23,12 +21,8 @@ function Login() {
   if (from === '/auth/login' || !from) {
     from = '/';
   }
-  const { locEmail, locPasswd } = location.state || { locPasswd: '', locPasswd: '' };
+  const { locEmail, locPasswd } = location.state;
 
-  const handleUpdateToken = () => {
-    const newToken = 'your-new-access-token';
-    updateAccessToken(newToken);
-  };
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -121,7 +115,11 @@ function Login() {
                     return;
                   }
                   const fields = await form.getFieldsValue();
-                  const { data, isError } = await postLogin(fields.email, fields.password, fields.longExpiry);
+                  const { data, isError } = await postLogin(
+                    fields.email,
+                    fields.password,
+                    fields.longExpiry,
+                  );
                   if (isError || !data) {
                     setAlert(data);
                     setAlertType('error');
@@ -131,7 +129,6 @@ function Login() {
                   setAlertType('success');
                   updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
                   updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
-                  console.log(tokenValid);
                   setTimeout(() => navigate(from), 1000);
                 }
               }

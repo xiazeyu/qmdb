@@ -2,13 +2,67 @@ import {
   React, useState, useRef, useEffect,
 } from 'react';
 import {
-  Table, TableColumnProps, Space, Input, Button, Skeleton, Result,
+  Table, Input, Button, Result,
 } from '@arco-design/web-react';
 import { IconSearch } from '@arco-design/web-react/icon';
 import { useNavigate } from 'react-router-dom';
 
 import { useMovies, genMoviesQueryUrl } from '../api/movies';
 import { DEMO } from '../context/DemoContext';
+
+function dropdownTitleComponent(
+  titleInputRef,
+  filterKeys,
+  setFilterKeys,
+  confirm,
+  setQueryParams,
+  queryParams,
+) {
+  return (
+    <div className="arco-table-custom-filter">
+      <Input.Search
+        ref={titleInputRef}
+        searchButton
+        placeholder="Please enter name"
+        value={filterKeys[0] || ''}
+        onChange={(value) => {
+          setFilterKeys(value ? [value] : []);
+        }}
+        onSearch={(value) => {
+          setQueryParams({ ...queryParams, title: value, page: 1 });
+          confirm();
+        }}
+      />
+    </div>
+  );
+}
+
+function dropdownYearComponent(
+  yearInputRef,
+  filterKeys,
+  setFilterKeys,
+  confirm,
+  setQueryParams,
+  queryParams,
+) {
+  return (
+    <div className="arco-table-custom-filter">
+      <Input.Search
+        ref={yearInputRef}
+        searchButton
+        placeholder="Please enter year"
+        value={filterKeys[0] || ''}
+        onChange={(value) => {
+          setFilterKeys(value ? [value] : []);
+        }}
+        onSearch={(value) => {
+          setQueryParams({ ...queryParams, year: value, page: 1 });
+          confirm();
+        }}
+      />
+    </div>
+  );
+}
 
 function Movie() {
   const navigate = useNavigate();
@@ -31,13 +85,6 @@ function Movie() {
   });
 
   const { data, isLoading, isError } = useMovies(genMoviesQueryUrl(queryParams));
-
-  function onChangeTable(pagination, sorter, filters, extra) {
-    if (extra.action === 'paginate') {
-      const { current } = pagination;
-      setQueryParams({ ...queryParams, page: current });
-    }
-  }
 
   useEffect(() => {
     if (isLoading || isError) {
@@ -68,25 +115,15 @@ function Movie() {
         multiple: 2,
       },
       filterIcon: <IconSearch />,
-      filterDropdown: ({ filterKeys, setFilterKeys, confirm }) => (
-        <div className="arco-table-custom-filter">
-          <Input.Search
-            ref={titleInputRef}
-            searchButton
-            placeholder="Please enter name"
-            value={filterKeys[0] || ''}
-            onChange={(value) => {
-              setFilterKeys(value ? [value] : []);
-            }}
-            onSearch={(value) => {
-              console.log(value);
-              setQueryParams({ ...queryParams, title: value, page: 1 });
-              confirm();
-            }}
-          />
-        </div>
+      filterDropdown: ({ filterKeys, setFilterKeys, confirm }) => dropdownTitleComponent(
+        titleInputRef,
+        filterKeys,
+        setFilterKeys,
+        confirm,
+        setQueryParams,
+        queryParams,
       ),
-      onFilter: (value, row) => true,
+      onFilter: () => true,
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
           setTimeout(() => titleInputRef.current.focus(), 150);
@@ -101,24 +138,15 @@ function Movie() {
         multiple: 3,
       },
       filterIcon: <IconSearch />,
-      filterDropdown: ({ filterKeys, setFilterKeys, confirm }) => (
-        <div className="arco-table-custom-filter">
-          <Input.Search
-            ref={yearInputRef}
-            searchButton
-            placeholder="Please enter year"
-            value={filterKeys[0] || ''}
-            onChange={(value) => {
-              setFilterKeys(value ? [value] : []);
-            }}
-            onSearch={(value) => {
-              setQueryParams({ ...queryParams, year: value, page: 1 });
-              confirm();
-            }}
-          />
-        </div>
+      filterDropdown: ({ filterKeys, setFilterKeys, confirm }) => dropdownYearComponent(
+        yearInputRef,
+        filterKeys,
+        setFilterKeys,
+        confirm,
+        setQueryParams,
+        queryParams,
       ),
-      onFilter: (value, row) => true,
+      onFilter: () => true,
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
           setTimeout(() => yearInputRef.current.focus(), 150);
@@ -176,7 +204,7 @@ function Movie() {
         <Result
           status="error"
           title={isError.message}
-          extra={<Button onClick={() => { location.reload(); }} type="primary">Retry</Button>}
+          extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
         />
       </div>
     );
@@ -186,10 +214,10 @@ function Movie() {
     <div>
       Click the row to see your movie details.
       {DEMO && (
-      <div>
-        <br />
-        <small>{JSON.stringify(queryParams)}</small>
-      </div>
+        <div>
+          <br />
+          <small>{JSON.stringify(queryParams)}</small>
+        </div>
       )}
       {DEMO && <small>{JSON.stringify(pagination)}</small>}
       <Table
@@ -197,9 +225,14 @@ function Movie() {
         columns={columns}
         data={data.data}
         pagination={pagination}
-        onChange={onChangeTable}
-        onRow={(record, index) => ({
-          onClick: (event) => {
+        onChange={(ipagination, sorter, filters, extra) => {
+          if (extra.action === 'paginate') {
+            const { current } = ipagination;
+            setQueryParams({ ...queryParams, page: current });
+          }
+        }}
+        onRow={(record) => ({
+          onClick: () => {
             navigate(`/movie/${record.imdbID}`);
           },
         })}

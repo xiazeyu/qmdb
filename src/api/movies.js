@@ -1,5 +1,5 @@
 import useSWRImmutable from 'swr/immutable';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 import ENDPOINT from './endpoint';
 
 export function genMoviesQueryUrl(inputParams) {

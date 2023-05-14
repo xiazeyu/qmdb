@@ -22,7 +22,7 @@ function Movie() {
         <Result
           status="error"
           title={isError.message}
-          extra={<Button onClick={() => { location.reload(); }} type="primary">Retry</Button>}
+          extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
         />
       </div>
     );
@@ -97,7 +97,7 @@ function Movie() {
           <Table
             columns={columns}
             data={principalsData}
-            onRow={(record, index) => ({
+            onRow={(record) => ({
               onClick: () => navigate(`/people/${record.id}`),
             })}
           />

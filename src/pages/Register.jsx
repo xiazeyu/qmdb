@@ -1,17 +1,14 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Form, Input, Button, Checkbox, Grid, Alert, Space, Message,
+  Form, Input, Button, Alert, Space, Message,
 } from '@arco-design/web-react';
 
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
 import { DEMO } from '../context/DemoContext';
 import { postRegister } from '../api/auth';
 
-const { Row, Col } = Grid;
-
-const random_email = `${Math.random().toString(36).substring(2, 10)}@${Math.random().toString(36).substring(2, 10)}.com`;
-const random_passwd = Math.random().toString(36).substring(2, 10);
+const randomEmail = `${Math.random().toString(36).substring(2, 10)}@${Math.random().toString(36).substring(2, 10)}.com`;
+const randomPassword = Math.random().toString(36).substring(2, 10);
 
 function Register() {
   const [alert, setAlert] = useState('');
@@ -37,9 +34,9 @@ function Register() {
       {DEMO && (
       <small>
         Demo Email:
-        {random_email}
+        {randomEmail}
         , Password:
-        {random_passwd}
+        {randomPassword}
       </small>
       )}
       {alert && <Alert closable type={alertType} content={alert} />}
@@ -47,9 +44,9 @@ function Register() {
         autoComplete="off"
         form={form}
         initialValues={DEMO ? {
-          email: random_email,
-          password: random_passwd,
-          confirm_password: random_passwd,
+          email: randomEmail,
+          password: randomPassword,
+          confirm_password: randomPassword,
         } : {
           email: '',
           password: '',
@@ -106,7 +103,7 @@ function Register() {
               } if (form.getFieldValue('password') !== v) {
                 return cb('confirm_password must be equal with password');
               }
-              cb(null);
+              return cb(null);
             },
           },
           {

@@ -18,7 +18,11 @@ const { Row, Col } = Grid;
 
 function Root() {
   const {
-    accessToken, updateAccessToken, refreshToken, updateRefreshToken, tokenValid, doLogout, doRefresh,
+    accessToken,
+    refreshToken,
+    tokenValid,
+    doLogout,
+    doRefresh,
   } = useContext(AuthContext);
 
   const { id } = useParams();
@@ -104,7 +108,6 @@ function Root() {
                     onClick={
                     async () => {
                       const { success, message } = await doLogout();
-                      console.log(success, message);
                       if (success) {
                         Message.success(message);
                       } else {
@@ -123,7 +126,6 @@ function Root() {
                     onClick={
                     async () => {
                       const { success, message } = await doRefresh();
-                      console.log(success, message);
                       if (success) {
                         Message.success(message);
                       } else {
@@ -170,7 +172,7 @@ function Root() {
                     {' '}
                   </small>
                 )}
-                </div>
+              </div>
               <div>
                 {DEMO && accessToken && (
                   <small>

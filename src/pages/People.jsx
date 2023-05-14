@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import {
-  Descriptions, Result, Button, Skeleton, Grid, Image, List, Table,
+  Result, Button, Skeleton, Table,
 } from '@arco-design/web-react';
 import {
   Chart as ChartJS,
@@ -13,7 +13,7 @@ import {
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import usePeople from '../api/people';
 import { AuthContext } from '../context/AuthContext';
 
@@ -27,11 +27,26 @@ ChartJS.register(
 );
 
 function People() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { accessToken, tokenValid } = useContext(AuthContext);
 
   const { id } = useParams();
 
   const { data, isLoading, isError } = usePeople(id, accessToken);
+
+  if (!tokenValid) {
+    return (
+      <div>
+        <Result
+          status="error"
+          title="You are not logged in"
+          extra={<Button onClick={() => navigate('/auth/login', { state: { from: location } })} type="primary">Login</Button>}
+        />
+      </div>
+    );
+  }
 
   if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
   if (isError || !data) {
@@ -40,7 +55,7 @@ function People() {
         <Result
           status="error"
           title={isError.message}
-          extra={<Button onClick={() => { location.reload(); }} type="primary">Retry</Button>}
+          extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
         />
       </div>
     );
@@ -89,13 +104,12 @@ function People() {
   ratingData.forEach((num) => {
     const roundedNumber = Math.ceil(num);
     if (roundedNumber === 0) {
-      counts[0]++;
+      counts[0] += 1;
     }
     if (roundedNumber >= 1 && roundedNumber <= 9) {
-      counts[roundedNumber - 1]++;
+      counts[roundedNumber - 1] += 1;
     }
   });
-  console.log(counts);
 
   const labels = ['0-1', '1-2', '2-3', '3-4', '4-5', '5-6', '6-7', '7-8', '8-9', '9-10'];
 
