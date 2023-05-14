@@ -96,7 +96,7 @@ function Movie() {
       pageSize: data.pagination.perPage,
       total: data.pagination.total,
     });
-  }, [data]);
+  }, [data, isError, isLoading, pagination]);
 
   const columns = [
     {

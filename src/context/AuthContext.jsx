@@ -1,5 +1,5 @@
 import React, {
-  createContext, useState, useEffect,
+  createContext, useState, useEffect, useCallback,
 } from 'react';
 import { postRefresh, postLogout } from '../api/auth';
 
@@ -11,11 +11,11 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
   const [accessExpiry, setAccessExpiry] = useState(null);
   const [refreshExpiry, setRefreshExpiry] = useState(null);
 
-  const canRefresh = () => {
+  const canRefresh = useCallback(() => {
     if (!refreshToken) return false;
     const currentDatetime = new Date().getTime();
     return currentDatetime < refreshExpiry;
-  };
+  }, [refreshToken, refreshExpiry]);
 
   const refreshState = () => {
     if (!accessToken) {
@@ -51,25 +51,25 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     }
   }, []);
 
-  const updateAccessToken = (token, expiresIn) => {
+  const updateAccessToken = useCallback((token, expiresIn) => {
     setAccessToken(token);
     const currentDatetime = new Date().getTime();
     const expiryDatetime = currentDatetime + expiresIn * 1000;
     setAccessExpiry(expiryDatetime);
     localStorage.setItem('accessToken', token);
     localStorage.setItem('accessExpiry', expiryDatetime);
-  };
+  }, []);
 
-  const updateRefreshToken = (token, expiresIn) => {
+  const updateRefreshToken = useCallback((token, expiresIn) => {
     setRefreshToken(token);
     const currentDatetime = new Date().getTime();
     const expiryDatetime = currentDatetime + expiresIn * 1000;
     setRefreshExpiry(expiryDatetime);
     localStorage.setItem('refreshToken', token);
     localStorage.setItem('refreshExpiry', expiryDatetime);
-  };
+  }, []);
 
-  const doRefresh = async () => {
+  const doRefresh = useCallback(async () => {
     if (!canRefresh()) return { success: false, message: 'Refresh token expired.' };
     const { data, isError } = await postRefresh(refreshToken);
     if (isError) {
@@ -78,7 +78,7 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
     updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
     return { success: true, message: 'Access token refreshed.' };
-  };
+  }, [canRefresh, refreshToken, updateAccessToken, updateRefreshToken]);
 
   const doLogout = async () => {
     const { data, isError } = await postLogout(refreshToken);

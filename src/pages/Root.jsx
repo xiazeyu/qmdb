@@ -1,5 +1,5 @@
 import {
-  React, useEffect, useState, useContext,
+  React, useEffect, useState, useContext, useCallback,
 } from 'react';
 
 import {
@@ -36,16 +36,16 @@ function Root() {
   const [showMovie, setShowMovie] = useState(false);
   const [showPeople, setShowPeople] = useState(false);
 
-  const menuItems = [
-    { key: 'home', url: '/' },
-    { key: 'movie', url: '/movie/:id' },
-    { key: 'people', url: '/people/:id' },
-    { key: 'auth', url: '/auth/login' },
-    { key: 'auth', url: '/auth/register' },
-    { key: 'logout', url: '/auth/logout' },
-  ];
-
   useEffect(() => {
+    const menuItems = [
+      { key: 'home', url: '/' },
+      { key: 'movie', url: '/movie/:id' },
+      { key: 'people', url: '/people/:id' },
+      { key: 'auth', url: '/auth/login' },
+      { key: 'auth', url: '/auth/register' },
+      { key: 'logout', url: '/auth/logout' },
+    ];
+
     const path = location.pathname;
     const menuItem = menuItems.find((item) => matchPath({ path: item.url }, path));
     if (menuItem.key === 'home') {
@@ -71,24 +71,30 @@ function Root() {
       setPeopleID(id);
     }
     setSelectedKey(menuItem ? [menuItem.key] : ['home']);
-  }, [location, id]);
+  }, [location, id, movieID]);
 
-  const refreshInterval = 5 * 60 * 1000; // 5 minutes
-  const intervalId = setInterval(async () => {
+  const doRefreshToken = useCallback(async () => {
     if (canRefresh()) {
       const { success, message } = await doRefresh();
-      if (!success) {
-        Message.error(message);
-        doLogout();
-      } else {
-        Message.success('Refreshed token');
+      if (DEMO) {
+        if (success) {
+          Message.success('Refresh token success (background)');
+        } else {
+          Message.error(message);
+        }
       }
     }
-  }, refreshInterval);
+  }, [doRefresh, canRefresh]);
 
-  useEffect(() => () => {
-    clearInterval(intervalId);
-  }, []);
+  useEffect(() => {
+    const timerId = setInterval(() => {
+      doRefreshToken();
+    }, DEMO ? 1000 * 10 : 1000 * 60 * 5);
+
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [doRefreshToken]);
 
   return (
     <div className="Root">
@@ -199,7 +205,7 @@ function Root() {
                     {accessToken}
                     . Until
                     {' '}
-                    {new Date(accessExpiry).toString()}
+                    {accessExpiry.toString()}
                     {' '}
                   </small>
                 ) : <small>No accessToken.</small>)}
@@ -209,7 +215,7 @@ function Root() {
                     {refreshToken}
                     . Until
                     {' '}
-                    {new Date(refreshExpiry).toString()}
+                    {refreshExpiry.toString()}
                     {' '}
                     <Button onClick={
                       async () => {
@@ -220,7 +226,7 @@ function Root() {
                           Message.error(message);
                         }
                       }
-}
+                    }
                     >
                       Refresh
                     </Button>

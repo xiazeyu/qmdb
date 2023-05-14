@@ -1,2 +1,2 @@
-export const DEMO = false;
+export const DEMO = true;
 export const DEBUG = false;

@@ -6,6 +6,7 @@ module.exports = {
   extends: [
     'plugin:react/recommended',
     'airbnb',
+    'plugin:react-hooks/recommended',
   ],
   overrides: [
   ],
@@ -16,6 +17,9 @@ module.exports = {
   plugins: [
     'react',
     'only-warn',
+    'react-hooks',
   ],
-  rules: {},
+  rules: {
+    'react/jsx-no-bind': 'warn',
+  },
 };
