@@ -3,7 +3,7 @@ import {
 } from 'react';
 
 import {
-  Layout, Menu, Divider, Grid, Message,
+  Layout, Menu, Divider, Grid, Message, Button,
 } from '@arco-design/web-react';
 import {
   Outlet, Link, useLocation, matchPath, useParams,
@@ -20,9 +20,11 @@ function Root() {
   const {
     accessToken,
     refreshToken,
-    tokenValid,
+    accessExpiry,
+    refreshExpiry,
     doLogout,
     doRefresh,
+    canRefresh,
   } = useContext(AuthContext);
 
   const { id } = useParams();
@@ -71,6 +73,23 @@ function Root() {
     setSelectedKey(menuItem ? [menuItem.key] : ['home']);
   }, [location, id]);
 
+  const refreshInterval = 30 * 60 * 1000; // 30 minutes
+  const intervalId = setInterval(async () => {
+    if (canRefresh()) {
+      const { success, message } = await doRefresh();
+      if (!success) {
+        Message.error(message);
+        doLogout();
+      } else {
+        Message.success('Refreshed token');
+      }
+    }
+  }, refreshInterval);
+
+  useEffect(() => () => {
+    clearInterval(intervalId);
+  }, []);
+
   return (
     <div className="Root">
       <Layout style={{ height: '400px' }}>
@@ -102,41 +121,41 @@ function Root() {
                   <Link to="/"><Item key="home">Home</Item></Link>
                   {showMovie && <Link to={`movie/${movieID}`}><Item key="movie">Movie</Item></Link>}
                   {showPeople && <Link to={`people/${peopleID}`}><Item key="people">People</Item></Link>}
-                  {!tokenValid && <Link to="auth/login" state={{ from: location }}><Item key="auth">Login / Register</Item></Link>}
-                  {tokenValid && (
-                  <Item
-                    onClick={
-                    async () => {
-                      const { success, message } = await doLogout();
-                      if (success) {
-                        Message.success(message);
-                      } else {
-                        Message.error(message);
+                  {!accessToken && <Link to="auth/login" state={{ from: location }}><Item key="auth">Login / Register</Item></Link>}
+                  {accessToken && (
+                    <Item
+                      onClick={
+                        async () => {
+                          const { success, message } = await doLogout();
+                          if (success) {
+                            Message.success(message);
+                          } else {
+                            Message.error(message);
+                          }
+                        }
                       }
-                    }
-                  }
-                    key="logout"
-                  >
-                    Logout
-                  </Item>
+                      key="logout"
+                    >
+                      Logout
+                    </Item>
                   )}
                   {DEMO && <Divider type="vertical" />}
                   {DEMO && (
-                  <Item
-                    onClick={
-                    async () => {
-                      const { success, message } = await doRefresh();
-                      if (success) {
-                        Message.success(message);
-                      } else {
-                        Message.error(message);
+                    <Item
+                      onClick={
+                        async () => {
+                          const { success, message } = await doRefresh();
+                          if (success) {
+                            Message.success(message);
+                          } else {
+                            Message.error(message);
+                          }
+                        }
                       }
-                    }
-                  }
-                    key="refresh"
-                  >
-                    Refresh
-                  </Item>
+                      key="refresh"
+                    >
+                      Refresh
+                    </Item>
                   )}
                   {DEMO && <Link to="movie/tt2911666"><Item key="debug_movie">Movie: John Wick</Item></Link>}
                   {DEMO && <Link to="movie/na"><Item key="na_movie">Movie: NA</Item></Link>}
@@ -174,30 +193,39 @@ function Root() {
                 )}
               </div>
               <div>
-                {DEMO && accessToken && (
+                {DEMO && accessToken ? (
                   <small>
                     AccessToken:
                     {accessToken}
-                    .
+                    . Until
+                    {' '}
+                    {new Date(accessExpiry).toString()}
                     {' '}
                   </small>
-                )}
-                {DEMO && refreshToken && (
-                <small>
-                  refreshToken:
-                    {refreshToken}
-                  .
-                    {' '}
-                </small>
-                )}
-                {DEMO && (
+                ) : <small>No accessToken.</small>}
+                {DEMO && refreshToken ? (
                   <small>
-                    tokenValid:
-                    {tokenValid.toString()}
-                    .
+                    refreshToken:
+                    {refreshToken}
+                    . Until
                     {' '}
+                    {new Date(refreshExpiry).toString()}
+                    {' '}
+                    <Button onClick={
+                      async () => {
+                        const { success, message } = await doRefresh();
+                        if (success) {
+                          Message.success(message);
+                        } else {
+                          Message.error(message);
+                        }
+                      }
+}
+                    >
+                      Refresh
+                    </Button>
                   </small>
-                )}
+                ) : <small>No refreshToken.</small>}
               </div>
             </Footer>
           </Col>

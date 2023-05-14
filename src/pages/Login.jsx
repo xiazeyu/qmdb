@@ -10,7 +10,7 @@ import { postLogin } from '../api/auth';
 
 function Login() {
   const {
-    updateAccessToken, updateRefreshToken, tokenValid,
+    updateAccessToken, updateRefreshToken,
   } = useContext(AuthContext);
   const [alert, setAlert] = useState('');
   const [alertType, setAlertType] = useState('info');
@@ -21,7 +21,7 @@ function Login() {
   if (from === '/auth/login' || !from) {
     from = '/';
   }
-  const { locEmail, locPasswd } = location.state;
+  const { locEmail, locPasswd } = location.state || { locEmail: '', locPasswd: '' };
 
   const [form] = Form.useForm();
 
@@ -32,17 +32,6 @@ function Login() {
     }, 10000);
     return () => clearTimeout(timer);
   }, [alert]);
-
-  if (tokenValid) {
-    setTimeout(() => navigate(from), 1000);
-    return (
-      <div className="Login">
-        <h1>Login</h1>
-        <Alert closable type="success" content="You are already logged in! Jumping to previous page ..." />
-        <Button type="primary" onClick={() => { location.reload(); }}>Refresh</Button>
-      </div>
-    );
-  }
 
   return (
     <div className="Login">

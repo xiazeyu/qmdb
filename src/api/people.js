@@ -2,11 +2,12 @@ import useSWRImmutable from 'swr/immutable';
 import ENDPOINT from './endpoint';
 
 export default function usePeople(id, bearerAuth) {
+  const authToken = bearerAuth || localStorage.getItem('accessToken');
   const { data, error, isLoading } = useSWRImmutable(
     `${ENDPOINT}/people/${id}`,
     (...args) => fetch(...args, {
       headers: {
-        Authorization: `Bearer ${bearerAuth}`,
+        Authorization: `Bearer ${authToken}`,
       },
     }).then(
       async (res) => {

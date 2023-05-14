@@ -16,12 +16,23 @@ function Movie() {
   const { data, isLoading, isError } = useMovie(id);
 
   if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
-  if (isError || !data) {
+  if (isError) {
     return (
       <div>
         <Result
           status="error"
           title={isError.message}
+          extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
+        />
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div>
+        <Result
+          status="error"
+          title="Something is wrong."
           extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
         />
       </div>

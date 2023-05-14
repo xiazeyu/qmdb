@@ -30,31 +30,41 @@ function People() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { accessToken, tokenValid } = useContext(AuthContext);
+  const { accessToken } = useContext(AuthContext);
 
   const { id } = useParams();
 
   const { data, isLoading, isError } = usePeople(id, accessToken);
 
-  if (!tokenValid) {
-    return (
-      <div>
-        <Result
-          status="error"
-          title="You are not logged in"
-          extra={<Button onClick={() => navigate('/auth/login', { state: { from: location } })} type="primary">Login</Button>}
-        />
-      </div>
-    );
-  }
-
   if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
-  if (isError || !data) {
+  if (isError) {
+    if (!accessToken) {
+      return (
+        <div>
+          <Result
+            status="error"
+            title="You are not logged in"
+            extra={<Button onClick={() => navigate('/auth/login', { state: { from: location } })} type="primary">Login</Button>}
+          />
+        </div>
+      );
+    }
     return (
       <div>
         <Result
           status="error"
           title={isError.message}
+          extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
+        />
+      </div>
+    );
+  }
+  if (!data) {
+    return (
+      <div>
+        <Result
+          status="error"
+          title="Something is wrong."
           extra={<Button onClick={() => { window.location.reload(); }} type="primary">Retry</Button>}
         />
       </div>
@@ -134,7 +144,13 @@ function People() {
         {' '}
         {data.deathYear || ''}
       </h3>
-      <Table columns={columns} data={rolesData} />
+      <Table
+        columns={columns}
+        data={rolesData}
+        onRow={(record) => ({
+          onClick: () => navigate(`/movie/${record.movieId}`),
+        })}
+      />
       <Bar options={chartOptions} data={chartData} />
     </div>
   );

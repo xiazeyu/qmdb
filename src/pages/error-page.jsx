@@ -10,6 +10,8 @@ const { Row, Col } = Grid;
 
 export default function ErrorPage() {
   const error = useRouteError();
+  console.error(error);
+  const errorToShow = error.status ? `${error.status} ${error.statusText}` : error.toString();
   //   {
   //     "status": 404,
   //     "statusText": "Not Found",
@@ -19,6 +21,7 @@ export default function ErrorPage() {
   //   }
 
   return (
+
     <div id="error-page">
 
       <Row className="grid" style={{ marginBottom: 16 }}>
@@ -26,7 +29,7 @@ export default function ErrorPage() {
           <Result
             status="error"
             icon={<IconFaceFrownFill />}
-            title={`${error.status} ${error.statusText}`}
+            title={errorToShow}
             subTitle={error.data}
             extra={<Link to="/"><Button type="primary">Go Home</Button></Link>}
           >

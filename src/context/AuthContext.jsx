@@ -1,33 +1,15 @@
 import React, {
-  createContext, useState,
+  createContext, useState, useEffect,
 } from 'react';
 import { postRefresh, postLogout } from '../api/auth';
 
 const AuthContext = createContext();
 
 function AuthProvider({ children }) { // eslint-disable-line react/prop-types
-  const [tokenValid, setTokenValid] = useState(false);
   const [accessToken, setAccessToken] = useState(null);
   const [refreshToken, setRefreshToken] = useState(null);
   const [accessExpiry, setAccessExpiry] = useState(null);
   const [refreshExpiry, setRefreshExpiry] = useState(null);
-
-  const updateAccessToken = (token, expiresIn) => {
-    setAccessToken(token);
-    const currentDatetime = new Date().getTime();
-    const expiryDatetime = currentDatetime + expiresIn * 1000;
-    setAccessExpiry(expiryDatetime);
-    setTokenValid(true);
-    console.log('Access token updated.', token, new Date(expiryDatetime).toString(), tokenValid);
-  };
-
-  const updateRefreshToken = (token, expiresIn) => {
-    setRefreshToken(token);
-    const currentDatetime = new Date().getTime();
-    const expiryDatetime = currentDatetime + expiresIn * 1000;
-    setRefreshExpiry(expiryDatetime);
-    console.log('Refresh token updated.', token, new Date(expiryDatetime).toString(), tokenValid);
-  };
 
   const canRefresh = () => {
     if (!refreshToken) return false;
@@ -35,42 +17,82 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
     return currentDatetime < refreshExpiry;
   };
 
-  const doRefresh = async () => {
+  const refreshState = () => {
     if (!accessToken) {
-      setTokenValid(false);
+      setAccessToken(null);
+      setAccessExpiry(null);
       return { valid: false, message: 'Access token not found.' };
     }
     const currentDatetime = new Date().getTime();
-    if (currentDatetime < accessExpiry) {
-      setTokenValid(true);
-      return { valid: true, message: 'Access token is valid.' };
+    if (currentDatetime > accessExpiry) {
+      setAccessToken(null);
+      setAccessExpiry(null);
+      return { valid: false, message: 'Access token expired.' };
     }
-    if (canRefresh()) {
-      const { data, isError } = await postRefresh(refreshToken);
-      if (isError) {
-        setTokenValid(false);
-        return { valid: false, message: data };
-      }
-      setTokenValid(true);
-      updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
-      updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
-      return { valid: true, message: 'Access token refreshed.' };
-    }
-    setTokenValid(false);
-    return { valid: false, message: 'Refresh token expired.' };
+    return { valid: true, message: 'Access token valid.' };
   };
 
-  const doLogout = async () => {
-    if (!tokenValid) return { success: true, message: 'Tokens invalid.' };
-    const { data, isError } = await postLogout(refreshToken);
+  useEffect(() => {
+    const storedAccessToken = localStorage.getItem('accessToken');
+    const storedRefreshToken = localStorage.getItem('refreshToken');
+    const storedAccessExpiry = localStorage.getItem('accessExpiry');
+    const storedRefreshExpiry = localStorage.getItem('refreshExpiry');
+    if (storedAccessToken) {
+      setAccessToken(storedAccessToken);
+    }
+    if (storedRefreshToken) {
+      setRefreshToken(storedRefreshToken);
+    }
+    if (storedAccessExpiry) {
+      setAccessExpiry(parseInt(storedAccessExpiry, 10));
+    }
+    if (storedRefreshExpiry) {
+      setRefreshExpiry(parseInt(storedRefreshExpiry, 10));
+    }
+  }, []);
+
+  const updateAccessToken = (token, expiresIn) => {
+    setAccessToken(token);
+    const currentDatetime = new Date().getTime();
+    const expiryDatetime = currentDatetime + expiresIn * 1000;
+    setAccessExpiry(expiryDatetime);
+    localStorage.setItem('accessToken', token);
+    localStorage.setItem('accessExpiry', expiryDatetime);
+  };
+
+  const updateRefreshToken = (token, expiresIn) => {
+    setRefreshToken(token);
+    const currentDatetime = new Date().getTime();
+    const expiryDatetime = currentDatetime + expiresIn * 1000;
+    setRefreshExpiry(expiryDatetime);
+    localStorage.setItem('refreshToken', token);
+    localStorage.setItem('refreshExpiry', expiryDatetime);
+  };
+
+  const doRefresh = async () => {
+    if (!canRefresh()) return { success: false, message: 'Refresh token expired.' };
+    const { data, isError } = await postRefresh(refreshToken);
     if (isError) {
       return { success: false, message: data };
     }
-    setTokenValid(false);
+    updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
+    updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
+    return { success: true, message: 'Access token refreshed.' };
+  };
+
+  const doLogout = async () => {
+    const { data, isError } = await postLogout(refreshToken);
     setAccessToken(null);
     setRefreshToken(null);
     setAccessExpiry(null);
     setRefreshExpiry(null);
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('accessExpiry');
+    localStorage.removeItem('refreshExpiry');
+    if (isError) {
+      return { success: false, message: data };
+    }
     return { success: true, message: 'Logged out.' };
   };
 
@@ -80,11 +102,12 @@ function AuthProvider({ children }) { // eslint-disable-line react/prop-types
       refreshToken,
       accessExpiry,
       refreshExpiry,
-      tokenValid,
       updateAccessToken,
       updateRefreshToken,
+      refreshState,
       doRefresh,
       doLogout,
+      canRefresh,
     }}
     >
       {children}
