@@ -19,7 +19,5 @@ module.exports = {
     'only-warn',
     'react-hooks',
   ],
-  rules: {
-    'react/jsx-no-bind': 'warn',
-  },
+  rules: {},
 };

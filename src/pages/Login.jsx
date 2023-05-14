@@ -59,7 +59,6 @@ function Login() {
           rules={[
             {
               type: 'email',
-              validateLevel: 'warning',
             },
             {
               required: true,

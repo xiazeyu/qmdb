@@ -62,7 +62,6 @@ function Register() {
           rules={[
             {
               type: 'email',
-              validateLevel: 'warning',
             },
             {
               required: true,
