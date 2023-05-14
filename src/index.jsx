@@ -17,6 +17,7 @@ import Logout from './pages/Logout';
 import ErrorPage from './pages/error-page';
 import { ConfigProvider } from '@arco-design/web-react';
 import enUS from '@arco-design/web-react/es/locale/en-US';
+import { AuthProvider } from './context/AuthContext';
 
 const router = createBrowserRouter([
   {
@@ -54,9 +55,11 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ConfigProvider locale={enUS}>
-      <RouterProvider router={router} />
-    </ConfigProvider>
+    <AuthProvider>
+      <ConfigProvider locale={enUS}>
+        <RouterProvider router={router} />
+      </ConfigProvider>
+    </AuthProvider>
   </React.StrictMode>,
 );
 

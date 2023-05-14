@@ -4,6 +4,9 @@ export async function postRegister(email, password) {
   const url = `${ENDPOINT}/user/register`;
   return fetch(url, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       email,
       password,
@@ -33,6 +36,9 @@ export async function postLogin(email, password, longExpiry) {
   const url = `${ENDPOINT}/user/login`;
   return fetch(url, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       email,
       password,
@@ -63,6 +69,9 @@ export async function postRefresh(refreshToken) {
   const url = `${ENDPOINT}/user/refresh`;
   return fetch(url, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       refreshToken,
     }),
@@ -91,6 +100,9 @@ export async function postLogout(refreshToken) {
   const url = `${ENDPOINT}/user/logout`;
   return fetch(url, {
     method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
     body: JSON.stringify({
       refreshToken,
     }),

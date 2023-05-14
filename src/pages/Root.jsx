@@ -7,12 +7,13 @@ import {
   Outlet, Link, useLocation, matchPath, useParams,
 } from 'react-router-dom';
 
+import { DEMO } from '../context/DemoContext';
+
 const { Item } = Menu;
 const { Header, Content, Footer } = Layout;
 const { Row, Col } = Grid;
 
 function Root() {
-  const DEBUG = true;
 
   const { id } = useParams();
   const location = useLocation();
@@ -65,7 +66,7 @@ function Root() {
     <div className="Root">
       <Layout style={{ height: '400px' }}>
         <Row gutter={[24, 24]}>
-          <Col span={12} offset={6}>
+          <Col span={18} offset={3}>
             <Header>
               <div className="menu">
                 <Menu mode="horizontal" selectedKeys={selectedKey}>
@@ -94,10 +95,12 @@ function Root() {
                   {showPeople && <Link to={`people/${peopleID}`}><Item key="people">People</Item></Link>}
                   {!isLoggedIn && <Link to="auth/login"><Item key="auth">Login / Register</Item></Link>}
                   {isLoggedIn && <Link to="auth/logout"><Item key="logout">Logout</Item></Link>}
-                  {DEBUG && <Divider type="vertical" />}
-                  {DEBUG && <Link to="movie/tt2911666"><Item key="debug_movie">Movie: John Wick</Item></Link>}
-                  {DEBUG && <Link to="people/nm0000206"><Item key="debug_people">People: Keanu Reeves</Item></Link>}
-                  {DEBUG && <Link to="nonexist"><Item key="debug_noexist">Nonexist</Item></Link>}
+                  {DEMO && <Divider type="vertical" />}
+                  {DEMO && <Link to="movie/tt2911666"><Item key="debug_movie">Movie: John Wick</Item></Link>}
+                  {DEMO && <Link to="movie/na"><Item key="na_movie">Movie: NA</Item></Link>}
+                  {DEMO && <Link to="people/nm0000206"><Item key="debug_people">People: Keanu Reeves</Item></Link>}
+                  {DEMO && <Link to="people/na"><Item key="na_people">People: NA</Item></Link>}
+                  {DEMO && <Link to="nonexist"><Item key="debug_noexist">Nonexist</Item></Link>}
                 </Menu>
               </div>
             </Header>

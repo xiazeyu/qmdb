@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Descriptions, Result, Button, Skeleton, Grid, Image, List, Table,
 } from '@arco-design/web-react';
@@ -15,6 +15,7 @@ import { Bar } from 'react-chartjs-2';
 
 import { useParams } from 'react-router-dom';
 import usePeople from '../api/people';
+import { AuthContext } from '../context/AuthContext';
 
 ChartJS.register(
   CategoryScale,
@@ -26,12 +27,14 @@ ChartJS.register(
 );
 
 function People() {
+  const { accessToken } = useContext(AuthContext);
+
   const { id } = useParams();
 
-  const { data, isLoading, isError } = usePeople(id, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1pa2VAZ21haWwuY29tIiwiZXhwIjoxNzE1NTA4NzI1LCJpYXQiOjE2ODM5NzI3MjV9.fFZ4TkD8hGGfIyo_MmYi4TsC1DLJyY3K1EMB0gTFD4w');
+  const { data, isLoading, isError } = usePeople(id, accessToken);
 
   if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
-  if (isError) {
+  if (isError || !data) {
     return (
       <div>
         <Result
