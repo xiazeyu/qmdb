@@ -33,17 +33,18 @@ function Movie() {
   const { data, isLoading, isError } = useMovies(genMoviesQueryUrl(queryParams));
 
   function onChangeTable(pagination, sorter, filters, extra) {
-    if (extra.action === 'paginate'){
+    if (extra.action === 'paginate') {
       const { current } = pagination;
-      setQueryParams({ ...queryParams, page: current })
+      setQueryParams({ ...queryParams, page: current });
     }
   }
 
   useEffect(() => {
-    if(isLoading || isError){
+    if (isLoading || isError) {
       return;
     }
-    setPagination({...pagination,
+    setPagination({
+      ...pagination,
       current: data.pagination.currentPage,
       pageSize: data.pagination.perPage,
       total: data.pagination.total,
@@ -78,16 +79,14 @@ function Movie() {
               setFilterKeys(value ? [value] : []);
             }}
             onSearch={(value) => {
-              console.log(value)
-              setQueryParams({ ...queryParams, title: value, page: 1 })
+              console.log(value);
+              setQueryParams({ ...queryParams, title: value, page: 1 });
               confirm();
             }}
           />
         </div>
       ),
-      onFilter: (value, row) => {
-        return true
-      },
+      onFilter: (value, row) => true,
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
           setTimeout(() => titleInputRef.current.focus(), 150);
@@ -113,15 +112,13 @@ function Movie() {
               setFilterKeys(value ? [value] : []);
             }}
             onSearch={(value) => {
-              setQueryParams({ ...queryParams, year: value, page: 1 })
-              confirm()
+              setQueryParams({ ...queryParams, year: value, page: 1 });
+              confirm();
             }}
           />
         </div>
       ),
-      onFilter: (value, row) => {
-        return true;
-      },
+      onFilter: (value, row) => true,
       onFilterDropdownVisibleChange: (visible) => {
         if (visible) {
           setTimeout(() => yearInputRef.current.focus(), 150);
@@ -171,8 +168,7 @@ function Movie() {
     },
   ];
 
-  if (isLoading)
-    return <Table columns={columns} loading />;
+  if (isLoading) return <Table columns={columns} loading />;
 
   if (isError || !data) {
     return (
@@ -189,7 +185,12 @@ function Movie() {
   return (
     <div>
       Click the row to see your movie details.
-      {DEMO && <div><br /><small>{JSON.stringify(queryParams)}</small></div>}
+      {DEMO && (
+      <div>
+        <br />
+        <small>{JSON.stringify(queryParams)}</small>
+      </div>
+      )}
       {DEMO && <small>{JSON.stringify(pagination)}</small>}
       <Table
         borderCell
@@ -199,7 +200,7 @@ function Movie() {
         onChange={onChangeTable}
         onRow={(record, index) => ({
           onClick: (event) => {
-            navigate(`/movie/${record.imdbID}`)
+            navigate(`/movie/${record.imdbID}`);
           },
         })}
       />

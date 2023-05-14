@@ -16,7 +16,7 @@ function AuthProvider({ children }) {
     const expiryDatetime = currentDatetime + expires_in * 1000;
     setAccessExpiry(expiryDatetime);
     setTokenValid(true);
-    console.log('Access token updated.', token, new Date(expiryDatetime).toString());
+    console.log('Access token updated.', token, new Date(expiryDatetime).toString(), tokenValid);
   };
 
   const updateRefreshToken = (token, expires_in) => {
@@ -24,7 +24,7 @@ function AuthProvider({ children }) {
     const currentDatetime = new Date().getTime();
     const expiryDatetime = currentDatetime + expires_in * 1000;
     setRefreshExpiry(expiryDatetime);
-    console.log('Refresh token updated.', token, new Date(expiryDatetime).toString());
+    console.log('Refresh token updated.', token, new Date(expiryDatetime).toString(), tokenValid);
   };
 
   const canRefresh = () => {
@@ -78,6 +78,7 @@ function AuthProvider({ children }) {
       refreshToken,
       accessExpiry,
       refreshExpiry,
+      tokenValid,
       updateAccessToken,
       updateRefreshToken,
       doRefresh,

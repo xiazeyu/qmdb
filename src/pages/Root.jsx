@@ -1,19 +1,25 @@
-import { React, useEffect, useState } from 'react';
+import {
+  React, useEffect, useState, useContext,
+} from 'react';
 
 import {
-  Layout, Menu, Divider, Grid,
+  Layout, Menu, Divider, Grid, Message,
 } from '@arco-design/web-react';
 import {
   Outlet, Link, useLocation, matchPath, useParams,
 } from 'react-router-dom';
 
 import { DEMO } from '../context/DemoContext';
+import { AuthContext } from '../context/AuthContext';
 
 const { Item } = Menu;
 const { Header, Content, Footer } = Layout;
 const { Row, Col } = Grid;
 
 function Root() {
+  const {
+    accessToken, updateAccessToken, refreshToken, updateRefreshToken, tokenValid, doLogout, doRefresh,
+  } = useContext(AuthContext);
 
   const { id } = useParams();
   const location = useLocation();
@@ -23,7 +29,6 @@ function Root() {
   const [peopleID, setPeopleID] = useState(undefined);
   const [showMovie, setShowMovie] = useState(false);
   const [showPeople, setShowPeople] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const menuItems = [
     { key: 'home', url: '/' },
@@ -93,9 +98,44 @@ function Root() {
                   <Link to="/"><Item key="home">Home</Item></Link>
                   {showMovie && <Link to={`movie/${movieID}`}><Item key="movie">Movie</Item></Link>}
                   {showPeople && <Link to={`people/${peopleID}`}><Item key="people">People</Item></Link>}
-                  {!isLoggedIn && <Link to="auth/login"><Item key="auth">Login / Register</Item></Link>}
-                  {isLoggedIn && <Link to="auth/logout"><Item key="logout">Logout</Item></Link>}
+                  {!tokenValid && <Link to="auth/login" state={{ from: location }}><Item key="auth">Login / Register</Item></Link>}
+                  {tokenValid && (
+                  <Item
+                    onClick={
+                    async () => {
+                      const { success, message } = await doLogout();
+                      console.log(success, message);
+                      if (success) {
+                        Message.success(message);
+                      } else {
+                        Message.error(message);
+                      }
+                    }
+                  }
+                    key="logout"
+                  >
+                    Logout
+                  </Item>
+                  )}
                   {DEMO && <Divider type="vertical" />}
+                  {DEMO && (
+                  <Item
+                    onClick={
+                    async () => {
+                      const { success, message } = await doRefresh();
+                      console.log(success, message);
+                      if (success) {
+                        Message.success(message);
+                      } else {
+                        Message.error(message);
+                      }
+                    }
+                  }
+                    key="refresh"
+                  >
+                    Refresh
+                  </Item>
+                  )}
                   {DEMO && <Link to="movie/tt2911666"><Item key="debug_movie">Movie: John Wick</Item></Link>}
                   {DEMO && <Link to="movie/na"><Item key="na_movie">Movie: NA</Item></Link>}
                   {DEMO && <Link to="people/nm0000206"><Item key="debug_people">People: Keanu Reeves</Item></Link>}
@@ -115,20 +155,46 @@ function Root() {
               <div style={{ whiteSpace: 'nowrap' }}>
                 <small>Made by Zeyu Xia (n11398299) @ QUT. 2023. </small>
                 {DEMO && movieID && (
-                <small style={{ whiteSpace: 'nowrap' }}>
-                  Current movie:
-                  {movieID}
-                  .
-                  {' '}
-                </small>
+                  <small style={{ whiteSpace: 'nowrap' }}>
+                    Current movie:
+                    {movieID}
+                    .
+                    {' '}
+                  </small>
                 )}
                 {DEMO && peopleID && (
-                <small style={{ whiteSpace: 'nowrap' }}>
-                  Current people:
-                  {peopleID}
+                  <small style={{ whiteSpace: 'nowrap' }}>
+                    Current people:
+                    {peopleID}
+                    .
+                    {' '}
+                  </small>
+                )}
+                </div>
+              <div>
+                {DEMO && accessToken && (
+                  <small>
+                    AccessToken:
+                    {accessToken}
+                    .
+                    {' '}
+                  </small>
+                )}
+                {DEMO && refreshToken && (
+                <small>
+                  refreshToken:
+                    {refreshToken}
                   .
-                  {' '}
+                    {' '}
                 </small>
+                )}
+                {DEMO && (
+                  <small>
+                    tokenValid:
+                    {tokenValid.toString()}
+                    .
+                    {' '}
+                  </small>
                 )}
               </div>
             </Footer>

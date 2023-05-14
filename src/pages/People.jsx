@@ -27,7 +27,7 @@ ChartJS.register(
 );
 
 function People() {
-  const { accessToken } = useContext(AuthContext);
+  const { accessToken, tokenValid } = useContext(AuthContext);
 
   const { id } = useParams();
 

@@ -3,8 +3,9 @@ import {
   Form, Input, Button, Checkbox, Grid, Alert, Space, Message,
 } from '@arco-design/web-react';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { DEMO, DEBUG } from '../context/DemoContext';
 import { postLogin } from '../api/auth';
 
 const { Row, Col } = Grid;
@@ -15,6 +16,14 @@ function Login() {
   } = useContext(AuthContext);
   const [alert, setAlert] = useState('');
   const [alertType, setAlertType] = useState('info');
+
+  const navigate = useNavigate();
+  const location = useLocation();
+  let { from } = location.state || { from: '/' };
+  if (from === '/auth/login' || !from) {
+    from = '/';
+  }
+  const { locEmail, locPasswd } = location.state || { locPasswd: '', locPasswd: '' };
 
   const handleUpdateToken = () => {
     const newToken = 'your-new-access-token';
@@ -31,12 +40,12 @@ function Login() {
   }, [alert]);
 
   if (tokenValid) {
+    setTimeout(() => navigate(from), 1000);
     return (
       <div className="Login">
         <h1>Login</h1>
-        <Alert closable type="success" content="You are already logged in!" />
+        <Alert closable type="success" content="You are already logged in! Jumping to previous page ..." />
         <Button type="primary" onClick={() => { location.reload(); }}>Refresh</Button>
-        <Button type="secondary" onClick={() => { }}>Log out</Button>
       </div>
     );
   }
@@ -48,9 +57,13 @@ function Login() {
       <Form
         autoComplete="off"
         form={form}
-        initialValues={{
-          email: 'mike@gmail.com',
-          password: 'password',
+        initialValues={DEMO ? {
+          email: DEBUG || !locEmail ? 'mike@gmail.com' : locEmail,
+          password: DEBUG || !locEmail ? 'password' : locPasswd,
+          longExpiry: false,
+        } : {
+          email: locEmail,
+          password: locPasswd,
           longExpiry: false,
         }}
         scrollToFirstError
@@ -96,30 +109,32 @@ function Login() {
         </Form.Item>
         <Form.Item style={{ justifyContent: 'center' }}>
           <Space size={24}>
-            <Button type="dashed">Register</Button>
+            <Button type="dashed" onClick={() => navigate('/auth/register', { state: from })}>Register</Button>
             <Button
               type="primary"
               onClick={
-          async () => {
-            try {
-              await form.validate(['email', 'password']);
-            } catch (e) {
-              Message.error(`Input format validation failed. ${e.message}`);
-              return;
-            }
-            const fields = await form.getFieldsValue();
-            const { data, isError } = await postLogin(fields.email, fields.password, fields.longExpiry);
-            if (isError || !data) {
-              setAlert(data);
-              setAlertType('error');
-              return;
-            }
-            setAlert('Login successful');
-            setAlertType('success');
-            updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
-            updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
-          }
-}
+                async () => {
+                  try {
+                    await form.validate(['email', 'password']);
+                  } catch (e) {
+                    Message.error(`Input format validation failed. ${e.message}`);
+                    return;
+                  }
+                  const fields = await form.getFieldsValue();
+                  const { data, isError } = await postLogin(fields.email, fields.password, fields.longExpiry);
+                  if (isError || !data) {
+                    setAlert(data);
+                    setAlertType('error');
+                    return;
+                  }
+                  setAlert('Login successful. Jumping to previous page ...');
+                  setAlertType('success');
+                  updateAccessToken(data.bearerToken.token, data.bearerToken.expires_in);
+                  updateRefreshToken(data.refreshToken.token, data.refreshToken.expires_in);
+                  console.log(tokenValid);
+                  setTimeout(() => navigate(from), 1000);
+                }
+              }
             >
               Login
             </Button>

@@ -15,8 +15,6 @@ function Movie() {
 
   const { data, isLoading, isError } = useMovie(id);
 
-  console.log(data)
-
   if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
   if (isError || !data) {
     return (

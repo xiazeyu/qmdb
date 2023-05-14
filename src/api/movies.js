@@ -1,10 +1,9 @@
 import useSWRImmutable from 'swr/immutable';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import ENDPOINT from './endpoint';
-import { mutate } from "swr"
 
-export function genMoviesQueryUrl(inputParams){
-  if (!inputParams){
+export function genMoviesQueryUrl(inputParams) {
+  if (!inputParams) {
     return `${ENDPOINT}/movies/search/`;
   }
   const { title, year, page } = inputParams;
@@ -22,11 +21,12 @@ export function genMoviesQueryUrl(inputParams){
 }
 
 export function useMovies(url) {
-  const { data, error, isLoading } = useSWR(url,
+  const { data, error, isLoading } = useSWR(
+    url,
     (...args) => fetch(...args).then(
       async (res) => {
         if (res.status === 200) {
-          const result = await res.json()
+          const result = await res.json();
           return result;
         } if (res.status === 429) {
           throw new Error(`${await res.text()} (Code: ${res.status})`);
@@ -36,7 +36,8 @@ export function useMovies(url) {
           throw new Error(`Unexpected error. (Code: ${res.status})`);
         }
       },
-    ),{keepPreviousData: true}
+    ),
+    { keepPreviousData: true },
   );
 
   return {

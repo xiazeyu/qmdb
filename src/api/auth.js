@@ -77,6 +77,7 @@ export async function postRefresh(refreshToken) {
     }),
   }).then(
     async (res) => {
+      console.log(res);
       if (res.status === 200) {
         return {
           data: await res.json(),
@@ -108,6 +109,7 @@ export async function postLogout(refreshToken) {
     }),
   }).then(
     async (res) => {
+      console.log(res);
       if (res.status === 200) {
         return {
           data: await res.json(),

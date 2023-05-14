@@ -13,7 +13,6 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import People from './pages/People';
 import Movie from './pages/Movie';
-import Logout from './pages/Logout';
 import ErrorPage from './pages/error-page';
 import { ConfigProvider } from '@arco-design/web-react';
 import enUS from '@arco-design/web-react/es/locale/en-US';
@@ -44,10 +43,6 @@ const router = createBrowserRouter([
       {
         path: 'auth/register',
         element: <Register />,
-      },
-      {
-        path: 'auth/logout',
-        element: <Logout />,
       },
     ],
   }]);
