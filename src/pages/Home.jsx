@@ -20,7 +20,35 @@ function Movie() {
     page: 1,
   });
 
+  const [pagination, setPagination] = useState({
+    hideOnSinglePage: true,
+    showJumper: true,
+    sizeCanChange: false,
+    current: 1,
+    pageSize: 100,
+    total: 1,
+    showTotal: true,
+  });
+
   const { data, isLoading, isError } = useMovies(genMoviesQueryUrl(queryParams));
+
+  function onChangeTable(pagination, sorter, filters, extra) {
+    if (extra.action === 'paginate'){
+      const { current } = pagination;
+      setQueryParams({ ...queryParams, page: current })
+    }
+  }
+
+  useEffect(() => {
+    if(isLoading || isError){
+      return;
+    }
+    setPagination({...pagination,
+      current: data.pagination.currentPage,
+      pageSize: data.pagination.perPage,
+      total: data.pagination.total,
+    });
+  }, [data]);
 
   const columns = [
     {
@@ -49,9 +77,9 @@ function Movie() {
             onChange={(value) => {
               setFilterKeys(value ? [value] : []);
             }}
-            onSearch={() => {
-              const newTitle = titleInputRef.current.dom.value;
-              setQueryParams({ ...queryParams, title: newTitle })
+            onSearch={(value) => {
+              console.log(value)
+              setQueryParams({ ...queryParams, title: value, page: 1 })
               confirm();
             }}
           />
@@ -84,9 +112,8 @@ function Movie() {
             onChange={(value) => {
               setFilterKeys(value ? [value] : []);
             }}
-            onSearch={() => {
-              const newYear = yearInputRef.current.dom.value;
-              setQueryParams({ ...queryParams, year: newYear })
+            onSearch={(value) => {
+              setQueryParams({ ...queryParams, year: value, page: 1 })
               confirm()
             }}
           />
@@ -162,13 +189,18 @@ function Movie() {
   return (
     <div>
       Click the row to see your movie details.
-      {DEMO && <small>{JSON.stringify(queryParams)}</small>}
+      {DEMO && <div><br /><small>{JSON.stringify(queryParams)}</small></div>}
+      {DEMO && <small>{JSON.stringify(pagination)}</small>}
       <Table
         borderCell
         columns={columns}
         data={data.data}
+        pagination={pagination}
+        onChange={onChangeTable}
         onRow={(record, index) => ({
-          onClick: () => navigate(`/movie/${record.imdbID}`),
+          onClick: (event) => {
+            navigate(`/movie/${record.imdbID}`)
+          },
         })}
       />
     </div>

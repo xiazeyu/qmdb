@@ -105,16 +105,16 @@ function Root() {
               </div>
             </Header>
           </Col>
-          <Col span={12} offset={6}>
+          <Col span={18} offset={3}>
             <Content>
               <Outlet />
             </Content>
           </Col>
-          <Col span={12} offset={6}>
+          <Col span={18} offset={3}>
             <Footer>
               <div style={{ whiteSpace: 'nowrap' }}>
                 <small>Made by Zeyu Xia (n11398299) @ QUT. 2023. </small>
-                {movieID && (
+                {DEMO && movieID && (
                 <small style={{ whiteSpace: 'nowrap' }}>
                   Current movie:
                   {movieID}
@@ -122,7 +122,7 @@ function Root() {
                   {' '}
                 </small>
                 )}
-                {peopleID && (
+                {DEMO && peopleID && (
                 <small style={{ whiteSpace: 'nowrap' }}>
                   Current people:
                   {peopleID}
