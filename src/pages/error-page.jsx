@@ -10,7 +10,7 @@ const { Row, Col } = Grid;
 
 export default function ErrorPage() {
   const error = useRouteError();
-  console.error(error);
+  console.error(error); // eslint-disable-line no-console
   const errorToShow = error.status ? `${error.status} ${error.statusText}` : error.toString();
   //   {
   //     "status": 404,

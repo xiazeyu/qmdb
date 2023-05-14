@@ -6,7 +6,8 @@ import {
   createBrowserRouter,
   RouterProvider,
 } from 'react-router-dom';
-import reportWebVitals from './reportWebVitals';
+import { ConfigProvider } from '@arco-design/web-react';
+import enUS from '@arco-design/web-react/es/locale/en-US';
 import Root from './pages/Root';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -14,9 +15,8 @@ import Register from './pages/Register';
 import People from './pages/People';
 import Movie from './pages/Movie';
 import ErrorPage from './pages/error-page';
-import { ConfigProvider } from '@arco-design/web-react';
-import enUS from '@arco-design/web-react/es/locale/en-US';
 import { AuthProvider } from './context/AuthContext';
+import reportWebVitals from './reportWebVitals';
 
 const router = createBrowserRouter([
   {
