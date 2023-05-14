@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/qmdb-gh-pages/static/css/main.7d57d320.css",
-    "main.js": "/qmdb-gh-pages/static/js/main.f4174981.js",
-    "static/js/787.6dfd5e95.chunk.js": "/qmdb-gh-pages/static/js/787.6dfd5e95.chunk.js",
-    "index.html": "/qmdb-gh-pages/index.html",
-    "main.7d57d320.css.map": "/qmdb-gh-pages/static/css/main.7d57d320.css.map",
-    "main.f4174981.js.map": "/qmdb-gh-pages/static/js/main.f4174981.js.map",
-    "787.6dfd5e95.chunk.js.map": "/qmdb-gh-pages/static/js/787.6dfd5e95.chunk.js.map"
+    "main.css": "/static/css/main.7d57d320.css",
+    "main.js": "/static/js/main.5ad15870.js",
+    "static/js/787.6dfd5e95.chunk.js": "/static/js/787.6dfd5e95.chunk.js",
+    "index.html": "/index.html",
+    "main.7d57d320.css.map": "/static/css/main.7d57d320.css.map",
+    "main.5ad15870.js.map": "/static/js/main.5ad15870.js.map",
+    "787.6dfd5e95.chunk.js.map": "/static/js/787.6dfd5e95.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.7d57d320.css",
-    "static/js/main.f4174981.js"
+    "static/js/main.5ad15870.js"
   ]
 }
