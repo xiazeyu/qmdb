@@ -49,16 +49,16 @@ function Root() {
     const path = location.pathname;
     const menuItem = menuItems.find((item) => matchPath({ path: item.url }, path));
     if (menuItem.key === 'home') {
-      setShowMovie(false);
-      setShowPeople(false);
-      setMovieID(undefined);
-      setPeopleID(undefined);
+      // setShowMovie(false);
+      // setShowPeople(false);
+      // setMovieID(undefined);
+      // setPeopleID(undefined);
     }
     if (menuItem.key === 'movie') {
       setShowMovie(true);
-      setShowPeople(false);
+      // setShowPeople(false);
       setMovieID(id);
-      setPeopleID(undefined);
+      // setPeopleID(undefined);
     }
     if (menuItem.key === 'people') {
       if (movieID) {
