@@ -1,5 +1,5 @@
 import {
-  React, useState, useRef, useEffect,
+  React, useState, useRef,
 } from 'react';
 import {
   Table, Input, Button, Result,
@@ -74,29 +74,7 @@ function Movie() {
     page: 1,
   });
 
-  const [pagination, setPagination] = useState({
-    hideOnSinglePage: true,
-    showJumper: true,
-    sizeCanChange: false,
-    current: 1,
-    pageSize: 100,
-    total: 1,
-    showTotal: true,
-  });
-
   const { data, isLoading, isError } = useMovies(genMoviesQueryUrl(queryParams));
-
-  useEffect(() => {
-    if (isLoading || isError) {
-      return;
-    }
-    setPagination({
-      ...pagination,
-      current: data.pagination.currentPage,
-      pageSize: data.pagination.perPage,
-      total: data.pagination.total,
-    });
-  }, [data]);
 
   const columns = [
     {
@@ -219,12 +197,28 @@ function Movie() {
           <small>{JSON.stringify(queryParams)}</small>
         </div>
       )}
-      {DEMO && <small>{JSON.stringify(pagination)}</small>}
+      {DEMO && (
+      <small>
+        {JSON.stringify({
+          current: data?.pagination.currentPage ?? 1,
+          pageSize: data?.pagination.perPage ?? 1,
+          total: data?.pagination.total ?? 1,
+        })}
+      </small>
+      )}
       <Table
         borderCell
         columns={columns}
         data={data.data}
-        pagination={pagination}
+        pagination={{
+          hideOnSinglePage: true,
+          showJumper: true,
+          sizeCanChange: false,
+          current: data?.pagination.currentPage ?? 1,
+          pageSize: data?.pagination.perPage ?? 1,
+          total: data?.pagination.total ?? 1,
+          showTotal: true,
+        }}
         onChange={(ipagination, sorter, filters, extra) => {
           if (extra.action === 'paginate') {
             const { current } = ipagination;
