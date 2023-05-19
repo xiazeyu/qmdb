@@ -37,18 +37,18 @@ function People() {
   const { data, isLoading, isError } = usePeople(id, accessToken);
 
   if (isLoading) return <div><Skeleton animation text={{ rows: 10 }} /></div>;
+  if (!accessToken) {
+    return (
+      <div>
+        <Result
+          status="error"
+          title="You are not logged in"
+          extra={<Button onClick={() => navigate('/auth/login', { state: { from: location } })} type="primary">Login</Button>}
+        />
+      </div>
+    );
+  }
   if (isError) {
-    if (!accessToken) {
-      return (
-        <div>
-          <Result
-            status="error"
-            title="You are not logged in"
-            extra={<Button onClick={() => navigate('/auth/login', { state: { from: location } })} type="primary">Login</Button>}
-          />
-        </div>
-      );
-    }
     return (
       <div>
         <Result
