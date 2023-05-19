@@ -1,0 +1,3 @@
+Need better implenetation of refreshing access token:
+Instead of using a timer, just send requests to the server. When server says expired, then try to refresh.
+Depending on the result of refreshing, either use the new token, or let the user to login.
